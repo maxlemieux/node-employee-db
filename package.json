@@ -17,7 +17,10 @@
   },
   "homepage": "https://github.com/maxlemieux/node-employee-db#readme",
   "dependencies": {
+    "chalk": "^4.0.0",
+    "console.table": "^0.10.0",
     "dotenv": "^8.2.0",
+    "figlet": "^1.3.0",
     "inquirer": "^7.1.0",
     "mysql": "^2.18.1"
   }
