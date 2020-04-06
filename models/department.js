@@ -8,7 +8,7 @@ const Department = {
         if (err) reject(err);
         resolve(data);
       });
-    })
+    });
   },
   add: function(newDepartmentObj) {
     const sql = 'INSERT INTO department SET ?';
@@ -17,14 +17,8 @@ const Department = {
         if (err) reject(err);
         resolve(data);
       });
-    })
+    });
   }
-}
-
-// Employee.viewAll().then(data => {
-//   console.log(data);
-// }).catch(err => {
-//   console.log(err);
-// });
+};
 
 module.exports = Department;

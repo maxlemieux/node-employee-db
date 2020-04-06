@@ -17,14 +17,8 @@ const Employee = {
         if (err) reject(err);
         resolve(data);
       });
-    })
+    });
   }
-}
-
-// Employee.viewAll().then(data => {
-//   console.log(data);
-// }).catch(err => {
-//   console.log(err);
-// });
+};
 
 module.exports = Employee;
