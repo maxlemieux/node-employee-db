@@ -1,3 +1,5 @@
+/* Pattern from https://jarednielsen.com/object-relational-mapping-javascript-orm/ */
+
 const dotenv = require('dotenv')
 const dotenvResult = dotenv.config()
 if (dotenvResult.error) throw dotenvResult.error;

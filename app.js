@@ -1,40 +1,30 @@
 const connection = require('./config/connection.js');
+const util = require('./util/util.js')
 
-const chalk = require('chalk');
-const figlet = require('figlet');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
 
+const Employee = require('./models/employee');
 
-/* Validation function to make sure we don't accept empty inputs */
-function isEmpty(input) {
-	return input.length !== 0;
-}
 
-/* https://stackoverflow.com/questions/9006988/node-js-on-windows-how-to-clear-console
-    Escape sequence to clear the screen on the console. 
-    Strict mode complains about this octal literal. */
-const clearOutput = () => {
-  process.stdout.write('\033c');
-}
-
-/* Show a header when the app is launched */
-const displayBrand = () => {
-  console.log(chalk.yellow(figlet.textSync('employee-db', { horizontalLayout: 'full' })));
-}
 
 /* View All Employees */
 function viewEmployees() {
-  const query = 'SELECT e.id, e.first_name, e.last_name, r.title, e.manager_id FROM employee e LEFT JOIN role r ON e.role_id = r.id';
-  connection.query(query, (err, rows) => {
-    if (rows != undefined) {
-      console.table(rows);
-    } else {
-      console.log('No employees found, please add an employee first.');
-    }
-    showMenu();
-  })
+  Employee.viewAll()
+    .then(data => {
+      if (data != undefined) {
+        console.table(data)
+      } else {
+        console.log('No employees found, please add an employee first.');
+      }
+    }).catch(err => {
+      console.log(err);
+    })
+    .then(() => {
+      showMenu();
+    });
 }
+
 //// View All Employees by Department
 //// View All Employees by Manager
 
@@ -299,7 +289,7 @@ const showMenu = () => {
 
 
 function startApp() {
-  displayBrand();
+  util.displayBrand('employee-db');
   showMenu();
 }
 
