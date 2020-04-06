@@ -1,20 +1,10 @@
-const dotenv = require('dotenv')
-const dotenvResult = dotenv.config()
-if (dotenvResult.error) throw dotenvResult.error;
+const connection = require('./config/connection.js');
 
 const chalk = require('chalk');
 const figlet = require('figlet');
-const mysql = require('mysql');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
 
-const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: "employee_db"
-});
 
 /* Validation function to make sure we don't accept empty inputs */
 function isEmpty(input) {
@@ -306,13 +296,11 @@ const showMenu = () => {
     })
 };
 
-connection.connect(err => {
-  if (err) throw err;
-  // console.log(`connected as id ${connection.threadId}`);
-  startApp();
-});
+
 
 function startApp() {
   displayBrand();
   showMenu();
 }
+
+startApp();
