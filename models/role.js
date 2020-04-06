@@ -18,7 +18,16 @@ const Role = {
         resolve(data);
       });
     });
+  },
+  getIdByTitle: function(roleTitle) {
+    const sql = 'SELECT id FROM role WHERE ?';
+    return new Promise(function(resolve, reject){
+      connection.query(sql, { title: roleTitle }, function(err, data) {
+        if (err) reject(err);
+        resolve(data);
+      });
+    });
   }
 };
-
+// Role.getIdByTitle('Bottle Washer').then(data => console.log(data[0].id));
 module.exports = Role;
