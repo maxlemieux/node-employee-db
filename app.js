@@ -1,12 +1,14 @@
+/* NPM packages */
+const inquirer = require('inquirer');
+require('console.table');
+
+/* Local modules */
 const connection = require('./config/connection.js');
 const util = require('./util/util.js')
 
-const inquirer = require('inquirer');
-const cTable = require('console.table');
-
+/* Database models */
 const Employee = require('./models/employee');
-
-
+const Department = require('./models/department');
 
 /* View All Employees */
 function viewEmployees() {
@@ -16,14 +18,14 @@ function viewEmployees() {
         console.table(data)
       } else {
         console.log('No employees found, please add an employee first.');
-      }
+      };
     }).catch(err => {
       console.log(err);
     })
     .then(() => {
       showMenu();
     });
-}
+};
 
 //// View All Employees by Department
 //// View All Employees by Manager
@@ -39,9 +41,9 @@ function addEmployee() {
       for (let i=0; i<roles.length; i++) {
         if (roles[i].title === roleTitle) {
           return roles[i].id;
-        }
-      }
-    }
+        };
+      };
+    };
     connection.query('SELECT id, first_name, last_name FROM employee', (err, employees) => {
       if (err) throw Error(err);
       /* Get an array of all the employee names to use for manager choices */
@@ -93,11 +95,11 @@ function addEmployee() {
           connection.query('INSERT INTO employee SET ?', employeeArray, (err, res) => {
             if (err) throw err;
             showMenu();
-          })
-        })
-    })
-  })
-}
+          });
+        });
+    });
+  });
+};
 
 //// Remove Employee
 
@@ -112,9 +114,9 @@ function updateEmployeeRole() {
       for (let i=0; i<roles.length; i++) {
         if (roles[i].title === roleTitle) {
           return roles[i].id;
-        }
-      }
-    }
+        };
+      };
+    };
     connection.query('SELECT id, first_name, last_name FROM employee', (err, employees) => {
       if (err) throw Error(err);
       /* Get an array of all the employee names */
@@ -124,9 +126,9 @@ function updateEmployeeRole() {
         for (let i=0; i<employees.length; i++) {
           if (`${employees[i].first_name} ${employees[i].last_name}` === employeeName) {
             return employees[i].id;
-          }
-        }
-      }
+          };
+        };
+      };
       /* Build and save a new employee record */
       inquirer
         .prompt([
@@ -144,19 +146,17 @@ function updateEmployeeRole() {
           },
         ])
         .then(answers => {
-          const employeeArray = [
-            {
-              role_id: roleId(roles, answers.role),
-            }
-          ];
-          connection.query(`UPDATE employee SET ? WHERE id=${employeeId(employees, answers.employee)}`, employeeArray, (err, res) => {
+          const newEmployeeObj = {
+            role_id: roleId(roles, answers.role),
+          };
+          connection.query(`UPDATE employee SET ? WHERE id=${employeeId(employees, answers.employee)}`, newEmployeeObj, (err, res) => {
             if (err) throw err;
             showMenu();
-          })
-        })
-    })
-  })
-}
+          });
+        });
+    });
+  });
+};
 
 
 //// Update Employee Manager
@@ -168,15 +168,15 @@ function viewRoles() {
       console.table(rows);
     } else {
       console.log('No roles found, please add a role first.');
-    }
+    };
     showMenu();
-  })
-}
+  });
+};
 
 // Add Role
 function addRole() {
-  inquirer
-    .prompt([
+  inquirer.prompt(
+    [
       {
         name: "title",
         type: "input",
@@ -187,103 +187,104 @@ function addRole() {
         type: "input",
         message: `What is the salary for this role?`
       }
-    ])
-    .then(answers => {
-      const roleArray = [
-        {
-          title: answers.title, 
-          salary: answers.salary, 
-        }
-      ];
-      connection.query('INSERT INTO role SET ?', roleArray, (err, res) => {
-        if (err) throw err;
-        showMenu();
-      })
-    })
-}
+    ]
+  ).then(answers => {
+    const roleArray = [
+      {
+        title: answers.title, 
+        salary: answers.salary, 
+      }
+    ];
+    connection.query('INSERT INTO role SET ?', roleArray, (err, res) => {
+      if (err) throw err;
+      showMenu();
+    });
+  });
+};
+
 //// Remove Role
+
 // View Departments
 function viewDepartments() {
-  connection.query( 'SELECT * FROM department', (err, rows) => {
-    if (rows != undefined) {
-      console.table(rows);
-    } else {
-      console.log('No departments found, you need to add some first');
-    }
-    showMenu();
-  })
-}
+  Department.viewAll()
+    .then(data => {
+      if (data != undefined) {
+            console.table(data);
+          } else {
+            console.log('No departments found, you need to add some first');
+          }
+    })
+    .catch(err => {
+      console.log(err);
+    })
+    .then(() => {
+      showMenu();
+    });
+};
 
 // Add Department
 function addDepartment() {
-  inquirer
-    .prompt([
-      {
-        name: "name",
-        type: "input",
-        message: `What is the name of this department?`
-      }
-    ])
-    .then(answers => {
-      const departmentArray = [
-        {
-          name: answers.name, 
-        }
-      ];
-      connection.query('INSERT INTO department SET ?', departmentArray, (err, res) => {
-        if (err) throw err;
-        showMenu();
-      })
-    })
-}
+  inquirer.prompt(
+    {
+      name: "name",
+      type: "input",
+      message: `What is the name of this department?`
+    }
+  ).then(answers => {
+    const newDepartmentObj = {
+      name: answers.name, 
+    };
+    Department.add(newDepartmentObj);
+    showMenu();
+  });
+};
 
 //// Remove Department
 
 /* Show the main menu */
-const showMenu = () => {
-  inquirer
-    .prompt({
-      name: 'action',
-      type: 'list',
-      message: 'What would you like to do?',
-      choices: [
-        'View All Employees',
-        'Add Employee',
-        'Update Employee Role',
-        'View All Roles',
-        'Add Role',
-        'View Departments',
-        'Add Department',
-        'exit'
-      ]
-    }).then(answer => {
-      switch(answer.action) {
-        case 'View All Employees':
-          viewEmployees();
-          break;
-        case 'Add Employee':
-          addEmployee();
-          break;
-        case 'Update Employee Role':
-          updateEmployeeRole();
-          break;
-        case 'View All Roles':
-          viewRoles();
-          break;
-        case 'Add Role':
-          addRole();
-          break;
-        case 'View Departments':
-          viewDepartments();
-          break;
-        case 'Add Department':
-          addDepartment();
-          break;
-        default:
-          connection.end();
-          break;
-      }
-    })
+function showMenu() {
+  inquirer.prompt({
+    name: 'action',
+    type: 'list',
+    message: 'What would you like to do?',
+    choices: [
+      'View All Employees',
+      'Add Employee',
+      'Update Employee Role',
+      'View All Roles',
+      'Add Role',
+      'View Departments',
+      'Add Department',
+      'exit'
+    ]
+  }).then(answer => {
+    switch(answer.action) {
+      case 'View All Employees':
+        viewEmployees();
+        break;
+      case 'Add Employee':
+        addEmployee();
+        break;
+      case 'Update Employee Role':
+        updateEmployeeRole();
+        break;
+      case 'View All Roles':
+        viewRoles();
+        break;
+      case 'Add Role':
+        addRole();
+        break;
+      case 'View Departments':
+        viewDepartments();
+        break;
+      case 'Add Department':
+        addDepartment();
+        break;
+      default:
+        connection.end();
+        break;
+    };
+  });
 };
 
 
@@ -291,6 +292,6 @@ const showMenu = () => {
 function startApp() {
   util.displayBrand('employee-db');
   showMenu();
-}
+};
 
 startApp();
