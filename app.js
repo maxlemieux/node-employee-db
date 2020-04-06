@@ -7,8 +7,9 @@ const connection = require('./config/connection.js');
 const util = require('./util/util.js')
 
 /* Database models */
-const Employee = require('./models/employee');
 const Department = require('./models/department');
+const Role = require('./models/role');
+const Employee = require('./models/employee');
 
 /* View All Employees */
 function viewEmployees() {
@@ -163,9 +164,9 @@ function updateEmployeeRole() {
 
 // View All Roles
 function viewRoles() {
-  connection.query( 'SELECT * FROM role', (err, rows) => {
-    if (rows != undefined) {
-      console.table(rows);
+  connection.query( 'SELECT * FROM role', (err, data) => {
+    if (data != undefined) {
+      console.table(data);
     } else {
       console.log('No roles found, please add a role first.');
     };
@@ -189,16 +190,16 @@ function addRole() {
       }
     ]
   ).then(answers => {
-    const roleArray = [
-      {
+    const newRoleObj = {
         title: answers.title, 
         salary: answers.salary, 
-      }
-    ];
-    connection.query('INSERT INTO role SET ?', roleArray, (err, res) => {
-      if (err) throw err;
-      showMenu();
-    });
+    };
+    // connection.query('INSERT INTO role SET ?', newRoleObj, (err, res) => {
+    //   if (err) throw err;
+    //   showMenu();
+    // });
+    Role.add(newRoleObj);
+    showMenu();
   });
 };
 
