@@ -35,7 +35,8 @@ const displayBrand = () => {
 
 /* View All Employees */
 function viewEmployees() {
-  connection.query( 'SELECT * FROM employee', (err, rows) => {
+  const query = 'SELECT e.id, e.first_name, e.last_name, r.title, e.manager_id FROM employee e LEFT JOIN role r ON e.role_id = r.id';
+  connection.query(query, (err, rows) => {
     if (rows != undefined) {
       console.table(rows);
     } else {
