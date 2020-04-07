@@ -32,73 +32,137 @@ function viewEmployees() {
 //// View All Employees by Manager
 
 /* Add Employee */
+// function addEmployee() {
+//   connection.query('SELECT id, title FROM role', (err, roles) => {
+//     if (err) throw Error(err);
+//     /* Get an array of all the role titles to use for choices */
+//     const rolesTitles = roles.map(role => role.title);
+//     /* Get a role ID from the role Name - this would probably be better as a getter on a class */
+//     function roleId(roles, roleTitle) {
+//       for (let i=0; i<roles.length; i++) {
+//         if (roles[i].title === roleTitle) {
+//           return roles[i].id;
+//         };
+//       };
+//     };
+//     connection.query('SELECT id, first_name, last_name FROM employee', (err, employees) => {
+//       if (err) throw Error(err);
+//       /* Get an array of all the employee names to use for manager choices */
+//       const employeeNames = employees.map(employee => `${employee.first_name} ${employee.last_name}`);
+//       /* Get a employee ID from the employee Name - this would probably be better as a getter on a class */
+//       function employeeId(employees, employeeName) {
+//         if (employeeName === 'None') {
+//           return null;
+//         }
+//         for (let i=0; i<employees.length; i++) {
+//           if (`${employees[i].first_name} ${employees[i].last_name}` === employeeName) {
+//             return employees[i].id;
+//           }
+//         }
+//       }
+//       /* Build and save a new employee record */
+//       inquirer
+//         .prompt([
+//           {
+//             name: "first_name",
+//             type: "input",
+//             message: `What is the employee's first name?`
+//           },
+//           {
+//             name: "last_name",
+//             type: "input",
+//             message: `What is the employee's last name?`
+//           },
+//           {
+//             name: "role",
+//             type: "list",
+//             choices: rolesTitles
+//           },
+//           {
+//             name: "manager",
+//             type: "list",
+//             choices: [ ...employeeNames, 'None']
+//           }
+//         ])
+//         .then(answers => {
+//           const employeeArray = [
+//             {
+//               first_name: answers.first_name, 
+//               last_name: answers.last_name, 
+//               role_id: roleId(roles, answers.role),
+//               manager_id: employeeId(employees, answers.manager)
+//             }
+//           ];
+//           connection.query('INSERT INTO employee SET ?', employeeArray, (err, res) => {
+//             if (err) throw err;
+//             showMenu();
+//           });
+//         });
+//     });
+//   });
+// };
+
+
 function addEmployee() {
-  connection.query('SELECT id, title FROM role', (err, roles) => {
+  Role.viewAll().then(data => {
+    /* Get an array of all the role titles to use for role choices */
+    return data.map(role => role.title);
+  }).then(roleTitles => {
+    console.log(roleTitles);
+  })
+  connection.query('SELECT id, first_name, last_name FROM employee', (err, employees) => {
     if (err) throw Error(err);
-    /* Get an array of all the role titles to use for choices */
-    const rolesTitles = roles.map(role => role.title);
-    /* Get a role ID from the role Name - this would probably be better as a getter on a class */
-    function roleId(roles, roleTitle) {
-      for (let i=0; i<roles.length; i++) {
-        if (roles[i].title === roleTitle) {
-          return roles[i].id;
-        };
-      };
-    };
-    connection.query('SELECT id, first_name, last_name FROM employee', (err, employees) => {
-      if (err) throw Error(err);
-      /* Get an array of all the employee names to use for manager choices */
-      const employeeNames = employees.map(employee => `${employee.first_name} ${employee.last_name}`);
-      /* Get a employee ID from the employee Name - this would probably be better as a getter on a class */
-      function employeeId(employees, employeeName) {
-        if (employeeName === 'None') {
-          return null;
-        }
-        for (let i=0; i<employees.length; i++) {
-          if (`${employees[i].first_name} ${employees[i].last_name}` === employeeName) {
-            return employees[i].id;
-          }
+    /* Get an array of all the employee names to use for manager choices */
+    const employeeNames = employees.map(employee => `${employee.first_name} ${employee.last_name}`);
+    /* Get a employee ID from the employee Name - this would probably be better as a getter on a class */
+    function employeeId(employees, employeeName) {
+      if (employeeName === 'None') {
+        return null;
+      }
+      for (let i=0; i<employees.length; i++) {
+        if (`${employees[i].first_name} ${employees[i].last_name}` === employeeName) {
+          return employees[i].id;
         }
       }
-      /* Build and save a new employee record */
-      inquirer
-        .prompt([
+    }
+    /* Build and save a new employee record */
+    inquirer
+      .prompt([
+        {
+          name: "first_name",
+          type: "input",
+          message: `What is the employee's first name?`
+        },
+        {
+          name: "last_name",
+          type: "input",
+          message: `What is the employee's last name?`
+        },
+        {
+          name: "role",
+          type: "list",
+          choices: rolesTitles
+        },
+        {
+          name: "manager",
+          type: "list",
+          choices: [ ...employeeNames, 'None']
+        }
+      ])
+      .then(answers => {
+        const employeeArray = [
           {
-            name: "first_name",
-            type: "input",
-            message: `What is the employee's first name?`
-          },
-          {
-            name: "last_name",
-            type: "input",
-            message: `What is the employee's last name?`
-          },
-          {
-            name: "role",
-            type: "list",
-            choices: rolesTitles
-          },
-          {
-            name: "manager",
-            type: "list",
-            choices: [ ...employeeNames, 'None']
+            first_name: answers.first_name, 
+            last_name: answers.last_name, 
+            role_id: roleId(roles, answers.role),
+            manager_id: employeeId(employees, answers.manager)
           }
-        ])
-        .then(answers => {
-          const employeeArray = [
-            {
-              first_name: answers.first_name, 
-              last_name: answers.last_name, 
-              role_id: roleId(roles, answers.role),
-              manager_id: employeeId(employees, answers.manager)
-            }
-          ];
-          connection.query('INSERT INTO employee SET ?', employeeArray, (err, res) => {
-            if (err) throw err;
-            showMenu();
-          });
+        ];
+        connection.query('INSERT INTO employee SET ?', employeeArray, (err, res) => {
+          if (err) throw err;
+          showMenu();
         });
-    });
+      });
   });
 };
 

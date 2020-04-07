@@ -30,4 +30,10 @@ const Role = {
   }
 };
 // Role.getIdByTitle('Bottle Washer').then(data => console.log(data[0].id));
+// Role.viewAll().then(data => {
+//   /* Get an array of all the role titles to use for choices */
+//   return data.map(role => role.title);
+// }).then(data => {
+//   console.log(data);
+// })
 module.exports = Role;
