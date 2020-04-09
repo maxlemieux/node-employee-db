@@ -18,7 +18,19 @@ const Employee = {
         resolve(data);
       });
     });
-  }
+  },
+  // getIdByName: function(employeeName) {
+  //   let employeeId = 'foo';
+  //   const sql = `SELECT id
+  //                  FROM employee
+  //                 WHERE (CONCAT(last_name, ', ', first_name)) = '${employeeName}'`;
+  //   connection.query(sql, (err, rows) => {
+  //     if (err) throw err;
+  //     // console.log(employeeId);
+  //     // console.log(data[0].id)
+  //     employeeId = rows[0].id;
+  //   })
+  // },
 };
 
 module.exports = Employee;
