@@ -3,7 +3,12 @@ const figlet = require('figlet');
 
 /* Validation function to make sure we don't accept empty inputs */
 function isEmpty(input) {
-	return input.length !== 0;
+	return input.length !== 0 || "Please enter a value for this field.";
+};
+
+/* Validation function to make sure input can be parsed as a number */
+function isPositiveNumber(input) {
+  return input > 0 || "Please enter a number greater than 0.";
 };
 
 /* https://stackoverflow.com/questions/9006988/node-js-on-windows-how-to-clear-console
@@ -20,6 +25,7 @@ const displayBrand = (headerText) => {
 
 module.exports = {
   isEmpty,
+  isPositiveNumber,
   clearOutput,
   displayBrand
 };

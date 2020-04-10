@@ -66,22 +66,26 @@ function addEmployee() {
           {
             name: "first_name",
             type: "input",
-            message: `What is the employee's first name?`
+            message: "What is the employee's first name?",
+            validate: util.isEmpty
           },
           {
             name: "last_name",
             type: "input",
-            message: `What is the employee's last name?`
+            message: "What is the employee's last name?",
+            validate: util.isEmpty
           },
           {
             name: "role",
             type: "list",
-            choices: rolesTitles
+            choices: rolesTitles,
+            validate: util.isEmpty
           },
           {
             name: "manager",
             type: "list",
-            choices: [ ...employeeNames, 'None']
+            choices: [ ...employeeNames, 'None'],
+            validate: util.isEmpty,
           }
         ])
         .then(answers => {
@@ -141,12 +145,14 @@ function updateEmployeeRole() {
             type: "list",
             message: `Change the role for which employee?`,
             choices: employeeNames,
+            validate: util.isEmpty
           },
           {
             name: "role",
             type: "list",
             message: `What role would you like to set for this employee?`,
-            choices: rolesTitles
+            choices: rolesTitles,
+            validate: util.isEmpty
           },
         ])
         .then(answers => {
@@ -184,12 +190,14 @@ function addRole() {
       {
         name: "title",
         type: "input",
-        message: `What is the title for this role?`
+        message: "What is the title for this role?",
+        validate: util.isEmpty
       },
       {
         name: "salary",
         type: "input",
-        message: `What is the salary for this role?`
+        message: "What is the salary for this role?",
+        validate: util.isPositiveNumber
       }
     ]
   ).then(answers => {
@@ -232,7 +240,8 @@ function addDepartment() {
     {
       name: "name",
       type: "input",
-      message: `What is the name of this department?`
+      message: "What is the name of this department?",
+      validate: util.isEmpty
     }
   ).then(answers => {
     const newDepartmentObj = {
