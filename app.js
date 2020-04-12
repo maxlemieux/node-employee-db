@@ -141,15 +141,15 @@ function removeEmployee() {
 
 // Update Employee Role
 function updateEmployeeRole() {
-  connection.query('SELECT id, title FROM role', (err, roles) => {
+  connection.query('SELECT id, title FROM role', (err, rows) => {
     if (err) throw Error(err);
     /* Get an array of all the role titles to use for choices */
-    const rolesTitles = roles.map(role => role.title);
+    const rolesTitles = rows.map(role => role.title);
     /* Get a role ID from the role Name - this would probably be better as a getter on a class */
-    function roleId(roles, roleTitle) {
-      for (let i=0; i<roles.length; i++) {
-        if (roles[i].title === roleTitle) {
-          return roles[i].id;
+    function roleId(rows, roleTitle) {
+      for (let i=0; i<rows.length; i++) {
+        if (rows[i].title === roleTitle) {
+          return rows[i].id;
         };
       };
     };
@@ -197,8 +197,63 @@ function updateEmployeeRole() {
   });
 };
 
-
 //// Update Employee Manager
+function updateEmployeeManager() {
+  connection.query('SELECT id, first_name, last_name FROM employee', (err, managers) => {
+    if (err) throw Error(err);
+    /* Get an array of all the employee names to use for choices */
+    const managerNames = managers.map(employee => `${employee.first_name} ${employee.last_name}`);
+    /* Get a employee ID from the employee Name - this would probably be better as a getter on a class */
+    function getManagerId(managers, managerName) {
+      for (let i=0; i<managers.length; i++) {
+        if (`${managers[i].first_name} ${managers[i].last_name}` === managerName) {
+          return managers[i].id;
+        };
+      };
+    };
+    connection.query('SELECT id, first_name, last_name FROM employee', (err, employees) => {
+      if (err) throw Error(err);
+      /* Get an array of all the employee names */
+      const employeeNames = employees.map(employee => `${employee.first_name} ${employee.last_name}`);
+      /* Get a employee ID from the employee Name - this would probably be better as a getter on a class */
+      function employeeId(employees, employeeName) {
+        for (let i=0; i<employees.length; i++) {
+          if (`${employees[i].first_name} ${employees[i].last_name}` === employeeName) {
+            return employees[i].id;
+          };
+        };
+      };
+      /* Build and save a new employee record */
+      inquirer
+        .prompt([
+          {
+            name: "employee",
+            type: "list",
+            message: `Change the manager for which employee?`,
+            choices: employeeNames,
+            validate: util.isEmpty
+          },
+          {
+            name: "manager",
+            type: "list",
+            message: `What manager would you like to set for this employee?`,
+            choices: managerNames,
+            validate: util.isEmpty
+          },
+        ])
+        .then(answers => {
+          const newEmployeeObj = {
+            manager_id: getManagerId(managers, answers.manager),
+          };
+          connection.query(`UPDATE employee SET ? WHERE id=${employeeId(employees, answers.employee)}`, newEmployeeObj, (err, res) => {
+            if (err) throw err;
+            console.log(chalk.green(`Updated manager to  "${answers.manager}" for employee ${answers.employee}`));
+            showMenu();
+          });
+        });
+    });
+  });
+};
 
 // View All Roles
 function viewRoles() {
@@ -351,6 +406,7 @@ function showMenu() {
       'View All Employees',
       'Add Employee',
       'Update Employee Role',
+      'Update Employee Manager',
       'Remove Employee',
       'View All Roles',
       'Add Role',
@@ -370,6 +426,9 @@ function showMenu() {
         break;
       case 'Update Employee Role':
         updateEmployeeRole();
+        break;
+      case 'Update Employee Manager':
+        updateEmployeeManager();
         break;
       case 'Remove Employee':
         removeEmployee();
