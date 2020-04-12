@@ -34,7 +34,7 @@ Copy the example environment file and change its settings to match your local en
 
 Open the file `.env` in your favorite editor and change the DB_HOST, DB_USER and DB_PASS settings. Save the changes.
 
-### Create a database to be used
+### Create a database
 
 The folder `db` contains two files which can be used to create and populate a database for the app.
 
