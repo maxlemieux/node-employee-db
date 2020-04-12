@@ -20,7 +20,8 @@ const Employee = {
                         ON e.role_id = r.id 
 
                         LEFT JOIN employee AS m 
-                        ON e.manager_id = m.id`;
+                        ON e.manager_id = m.id
+                  ORDER BY e.id`;
     return new Promise(function(resolve, reject){
       connection.query(sql, function(err, data) {
         if (err) reject(err);
@@ -62,7 +63,7 @@ const Employee = {
                         LEFT JOIN department AS d
                         ON r.department_id = d.id
                         
-                        WHERE d.id = ?`;
+                  WHERE d.id = ?`;
     return new Promise(function(resolve, reject){
       connection.query(sql, [departmentId], function(err, data) {
         if (err) reject(err);

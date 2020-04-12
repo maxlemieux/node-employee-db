@@ -43,30 +43,29 @@ function viewEmployeesByDepartment() {
         };
       };
     };
-    inquirer
-      .prompt({
-        name: "department",
-        type: "list",
-        message: "View employees for what department?",
-        choices: departmentNames,
-        validate: util.isEmpty
-      })
-      .then(answers => {
-        const departmentId = getDepartmentId(departments, answers.department);
-        Employee.viewByDepartment(departmentId)
-          .then(data => {
-            if (data.length != 0) {
-              console.table(data)
-            } else {
-              console.log(chalk.yellow('No employees found for that department, please choose a different department.'));
-            };
-          }).catch(err => {
-            console.log(err);
-          })
-          .then(() => {
-            showMenu();
-          });
+    inquirer.prompt({
+      name: "department",
+      type: "list",
+      message: "View employees for what department?",
+      choices: departmentNames,
+      validate: util.isEmpty
+    })
+    .then(answers => {
+      const departmentId = getDepartmentId(departments, answers.department);
+      Employee.viewByDepartment(departmentId)
+        .then(data => {
+          if (data.length != 0) {
+            console.table(data)
+          } else {
+            console.log(chalk.yellow('No employees found for that department, please choose a different department.'));
+          };
+        }).catch(err => {
+          console.log(err);
+        })
+        .then(() => {
+          showMenu();
         });
+    });
   })
 };
 
@@ -141,47 +140,46 @@ function addEmployee() {
         }
       }
       /* Build and save a new employee record */
-      inquirer
-        .prompt([
-          {
-            name: "first_name",
-            type: "input",
-            message: "What is the employee's first name?",
-            validate: util.isEmpty
-          },
-          {
-            name: "last_name",
-            type: "input",
-            message: "What is the employee's last name?",
-            validate: util.isEmpty
-          },
-          {
-            name: "role",
-            type: "list",
-            choices: rolesTitles,
-            validate: util.isEmpty
-          },
-          {
-            name: "manager",
-            type: "list",
-            choices: [ ...employeeNames, 'None'],
-            validate: util.isEmpty,
-          }
-        ])
-        .then(answers => {
-          const newEmployeeObj = {
-            first_name: answers.first_name, 
-            last_name: answers.last_name, 
-            role_id: roleId(roles, answers.role),
-            manager_id: employeeId(employees, answers.manager)
-          };
-          Employee.add(newEmployeeObj)
-            .then(() =>{
-              console.log(chalk.green(`Added new employee "${answers.first_name} ${answers.last_name}" with role ${answers.role} and manager ${answers.manager}`));
-              showMenu();
-            });
-        });
+      inquirer.prompt([
+        {
+          name: "first_name",
+          type: "input",
+          message: "What is the employee's first name?",
+          validate: util.isEmpty
+        },
+        {
+          name: "last_name",
+          type: "input",
+          message: "What is the employee's last name?",
+          validate: util.isEmpty
+        },
+        {
+          name: "role",
+          type: "list",
+          choices: rolesTitles,
+          validate: util.isEmpty
+        },
+        {
+          name: "manager",
+          type: "list",
+          choices: [ ...employeeNames, 'None'],
+          validate: util.isEmpty,
+        }
+      ])
+      .then(answers => {
+        const newEmployeeObj = {
+          first_name: answers.first_name, 
+          last_name: answers.last_name, 
+          role_id: roleId(roles, answers.role),
+          manager_id: employeeId(employees, answers.manager)
+        };
+        Employee.add(newEmployeeObj)
+          .then(() =>{
+            console.log(chalk.green(`Added new employee "${answers.first_name} ${answers.last_name}" with role ${answers.role} and manager ${answers.manager}`));
+            showMenu();
+          });
       });
+    });
   });
 };
 
@@ -205,8 +203,9 @@ function removeEmployee() {
       message: "Remove which employee?",
       choices: employeeNames,
       validate: util.isEmpty
-    }).then(answers => {
-      const employeeId = getEmployeeId(answers.name);
+    })
+    .then(answers => {
+      const employeeId = getEmployeeId(rows, answers.name);
       Employee.remove(employeeId);
       console.log(chalk.yellow(`Removed employee "${answers.name}"`));
       showMenu();
@@ -332,12 +331,17 @@ function updateEmployeeManager() {
 
 // View All Roles
 function viewRoles() {
-  connection.query( 'SELECT * FROM role', (err, data) => {
-    if (data != undefined) {
-      console.table(data);
+  Role.viewAll()
+  .then(data => {
+    if (data.length != 0) {
+      console.table(data)
     } else {
       console.log('No roles found, please add a role first.');
     };
+  }).catch(err => {
+    console.log(err);
+  })
+  .then(() => {
     showMenu();
   });
 };
@@ -412,11 +416,21 @@ function removeRole() {
       validate: util.isEmpty
     })
     .then(answers => {
-      const roleId = getRoleId(answers.title);
+      const roleId = getRoleId(rows, answers.title);
       Role.remove(roleId)
-        .then(console.log(chalk.yellow(`Removed role "${answers.title}"`)));
-      showMenu();
-    });
+        .then(() => {
+          console.log(chalk.yellow(`Removed role "${answers.title}"`));
+          showMenu();
+        })
+        .catch(err => {
+          if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+            console.log(chalk.yellow('Cannot remove that role because it is currently assigned to one or more employees. Please give those employees a new role first.'))
+          } else {
+            console.log(chalk.yellow('There was an error, please try again.'));
+          }
+          showMenu();
+        });
+    })
   })
 };
 
