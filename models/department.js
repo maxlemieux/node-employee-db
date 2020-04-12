@@ -2,7 +2,7 @@ const connection = require('../config/connection.js');
 
 const Department = {
   viewAll: function() {
-    const sql = 'SELECT * FROM department';
+    const sql = 'SELECT name FROM department';
     return new Promise(function(resolve, reject){
       connection.query(sql, function(err, data) {
         if (err) reject(err);
@@ -14,6 +14,15 @@ const Department = {
     const sql = 'INSERT INTO department SET ?';
     return new Promise(function(resolve, reject){
       connection.query(sql, newDepartmentObj, function(err, data) {
+        if (err) reject(err);
+        resolve(data);
+      });
+    });
+  },
+  remove: function(departmentId) {
+    const sql = 'DELETE FROM department WHERE id = ?';
+    return new Promise(function(resolve, reject) {
+      connection.query(sql, departmentId, function(err, data) {
         if (err) reject(err);
         resolve(data);
       });

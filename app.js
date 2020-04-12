@@ -254,6 +254,36 @@ function addDepartment() {
 };
 
 //// Remove Department
+function removeDepartment() {
+  connection.query('SELECT id, name FROM department', (err, rows) => {
+    if (err) throw Error(err);
+    /* Get an array of all the role titles to use for choices */
+    const departmentNames = rows.map(department => department.name);
+    /* Get a department ID from the department Name - this would probably be better as a getter on a class */
+    function departmentId(rows, departmentName) {
+      for (let i=0; i<rows.length; i++) {
+        if (rows[i].name === departmentName) {
+          return rows[i].id;
+        };
+      };
+    };
+    inquirer.prompt(
+      {
+        name: "name",
+        type: "list",
+        message: "Remove which department?",
+        choices: departmentNames,
+        validate: util.isEmpty
+      }
+    ).then(answers => {
+      const departmentId = departmentId(answers.name);
+      Department.remove(departmentId);
+      console.log(chalk.green(`Removed department "${answers.name}"`));
+      showMenu();
+    });
+  })
+};
+
 
 /* Show the main menu */
 function showMenu() {
@@ -269,7 +299,8 @@ function showMenu() {
       'Add Role',
       'View Departments',
       'Add Department',
-      'exit'
+      'Remove Department',
+      'Exit'
     ]
   }).then(answer => {
     switch(answer.action) {
@@ -293,6 +324,9 @@ function showMenu() {
         break;
       case 'Add Department':
         addDepartment();
+        break;
+      case 'Remove Department':
+        removeDepartment();
         break;
       default:
         connection.end();
