@@ -83,30 +83,29 @@ function viewEmployeesByManager() {
         };
       };
     };
-    inquirer
-      .prompt({
-        name: "manager",
-        type: "list",
-        message: "View employees for what manager?",
-        choices: managerNames,
-        validate: util.isEmpty
+    inquirer.prompt({
+      name: "manager",
+      type: "list",
+      message: "View direct reports for what manager?",
+      choices: managerNames,
+      validate: util.isEmpty
+    })
+    .then(answers => {
+      const managerId = getManagerId(managers, answers.manager);
+      Employee.viewByManager(managerId)
+      .then(data => {
+        if (data.length != 0) {
+          console.table(data)
+        } else {
+          console.log(chalk.yellow('No direct reports found for that employee, please choose a different manager.'));
+        };
+      }).catch(err => {
+        console.log(err);
       })
-      .then(answers => {
-        const managerId = getManagerId(managers, answers.manager);
-        Employee.viewByManager(managerId)
-          .then(data => {
-            if (data.length != 0) {
-              console.table(data)
-            } else {
-              console.log(chalk.yellow('No direct reports found for that employee, please choose a different manager.'));
-            };
-          }).catch(err => {
-            console.log(err);
-          })
-          .then(() => {
-            showMenu();
-          });
-        });
+      .then(() => {
+        showMenu();
+      });
+    });
   })
 };
 
