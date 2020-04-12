@@ -173,21 +173,19 @@ function addEmployee() {
           }
         ])
         .then(answers => {
-          const employeeArray = [
-            {
-              first_name: answers.first_name, 
-              last_name: answers.last_name, 
-              role_id: roleId(roles, answers.role),
-              manager_id: employeeId(employees, answers.manager)
-            }
-          ];
-          connection.query('INSERT INTO employee SET ?', employeeArray, (err, res) => {
-            if (err) throw err;
-            console.log(chalk.green(`Added new employee ${answers.first_name} ${answers.last_name} with role "${answers.role}" and manager ${answers.manager}`));
-            showMenu();
-          });
+          const newEmployeeObj = {
+            first_name: answers.first_name, 
+            last_name: answers.last_name, 
+            role_id: roleId(roles, answers.role),
+            manager_id: employeeId(employees, answers.manager)
+          };
+          Employee.add(newEmployeeObj)
+            .then(() =>{
+              console.log(chalk.green(`Added new employee "${answers.first_name} ${answers.last_name}" with role ${answers.role} and manager ${answers.manager}`));
+              showMenu();
+            });
         });
-    });
+      });
   });
 };
 

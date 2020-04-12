@@ -1,6 +1,15 @@
 const connection = require('../config/connection.js');
 
 const Employee = {
+  add: function(newEmployeeObj) {
+    const sql = 'INSERT INTO employee SET ?';
+    return new Promise(function(resolve, reject){
+      connection.query(sql, newEmployeeObj, function(err, data) {
+        if (err) reject(err);
+        resolve(data);
+      });
+    });
+  },
   viewAll: function() {
     const sql = `SELECT e.id, 
                         CONCAT(e.first_name, ' ', e.last_name) AS Employee, 
