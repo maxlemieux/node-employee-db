@@ -11,9 +11,9 @@ const Employee = {
     });
   },
   viewAll: function() {
-    const sql = `SELECT e.id, 
+    const sql = `SELECT e.id AS ID, 
                         CONCAT(e.first_name, ' ', e.last_name) AS Employee, 
-                        r.title, 
+                        r.title AS Title, 
                         IFNULL(CONCAT(m.first_name, ' ', m.last_name), 'None') AS Manager 
                    FROM employee AS e 
                         LEFT JOIN role AS r 

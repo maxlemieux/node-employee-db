@@ -2,7 +2,7 @@ const connection = require('../config/connection.js');
 
 const Department = {
   viewAll: function() {
-    const sql = 'SELECT name FROM department ORDER BY id';
+    const sql = 'SELECT name AS Department FROM department ORDER BY id';
     return new Promise(function(resolve, reject){
       connection.query(sql, function(err, data) {
         if (err) reject(err);

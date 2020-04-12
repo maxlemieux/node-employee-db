@@ -259,7 +259,7 @@ function updateEmployeeRole() {
         ])
         .then(answers => {
           const newEmployeeObj = {
-            role_id: roleId(roles, answers.role),
+            role_id: roleId(rows, answers.role),
           };
           connection.query(`UPDATE employee SET ? WHERE id=${employeeId(employees, answers.employee)}`, newEmployeeObj, (err, res) => {
             if (err) throw err;
