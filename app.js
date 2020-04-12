@@ -16,7 +16,7 @@ const Employee = require('./models/employee');
 function viewEmployees() {
   Employee.viewAll()
     .then(data => {
-      if (data != undefined) {
+      if (data.length != 0) {
         console.table(data)
       } else {
         console.log('No employees found, please add an employee first.');
@@ -44,15 +44,13 @@ function viewEmployeesByDepartment() {
       };
     };
     inquirer
-      .prompt([
-        {
-          name: "department",
-          type: "list",
-          message: "View employees for what department?",
-          choices: departmentNames,
-          validate: util.isEmpty
-        },
-      ])
+      .prompt({
+        name: "department",
+        type: "list",
+        message: "View employees for what department?",
+        choices: departmentNames,
+        validate: util.isEmpty
+      })
       .then(answers => {
         const departmentId = getDepartmentId(departments, answers.department);
         Employee.viewByDepartment(departmentId)
@@ -87,15 +85,13 @@ function viewEmployeesByManager() {
       };
     };
     inquirer
-      .prompt([
-        {
-          name: "manager",
-          type: "list",
-          message: "View employees for what manager?",
-          choices: managerNames,
-          validate: util.isEmpty
-        },
-      ])
+      .prompt({
+        name: "manager",
+        type: "list",
+        message: "View employees for what manager?",
+        choices: managerNames,
+        validate: util.isEmpty
+      })
       .then(answers => {
         const managerId = getManagerId(managers, answers.manager);
         Employee.viewByManager(managerId)
@@ -203,15 +199,13 @@ function removeEmployee() {
         };
       };
     };
-    inquirer.prompt(
-      {
-        name: "name",
-        type: "list",
-        message: "Remove which employee?",
-        choices: employeeNames,
-        validate: util.isEmpty
-      }
-    ).then(answers => {
+    inquirer.prompt({
+      name: "name",
+      type: "list",
+      message: "Remove which employee?",
+      choices: employeeNames,
+      validate: util.isEmpty
+    }).then(answers => {
       const employeeId = getEmployeeId(answers.name);
       Employee.remove(employeeId);
       console.log(chalk.yellow(`Removed employee "${answers.name}"`));
@@ -350,12 +344,30 @@ function viewRoles() {
 
 // Add Role
 function addRole() {
-  inquirer.prompt(
-    [
+  connection.query('SELECT id, name FROM department', (err, rows) => {
+    if (err) throw Error(err);
+    /* Get an array of all the department names to use for choices */
+    const departmentNames = rows.map(department => department.name);
+    /* Get a department ID from the department Name - this would probably be better as a getter on a class */
+    function getDepartmentId(rows, departmentName) {
+      for (let i=0; i<rows.length; i++) {
+        if (rows[i].name === departmentName) {
+          return rows[i].id;
+        };
+      };
+    };
+    inquirer.prompt([
       {
         name: "title",
         type: "input",
         message: "What is the title for this role?",
+        validate: util.isEmpty
+      },
+      {
+        name: "department",
+        type: "list",
+        choices: departmentNames,
+        message: "What is the department for this role?",
         validate: util.isEmpty
       },
       {
@@ -364,15 +376,17 @@ function addRole() {
         message: "What is the salary for this role?",
         validate: util.isPositiveNumber
       }
-    ]
-  ).then(answers => {
-    const newRoleObj = {
+    ]).then(answers => {
+      const departmentId = getDepartmentId(rows, answers.department);
+      const newRoleObj = {
         title: answers.title, 
-        salary: answers.salary, 
-    };
-    Role.add(newRoleObj)
-      .then(console.log(chalk.green(`Added new role "${newRoleObj.title}" with salary ${newRoleObj.salary}`)));
-    showMenu();
+        salary: answers.salary,
+        department_id: departmentId
+      };
+      Role.add(newRoleObj)
+        .then(console.log(chalk.green(`Added new role "${answers.title}" in department "${answers.department}" with salary ${answers.salary}`)));
+      showMenu();
+    });
   });
 };
 
@@ -390,17 +404,14 @@ function removeRole() {
         };
       };
     };
-    inquirer.prompt(
-      [
-        {
-          name: "title",
-          type: "list",
-          message: "Remove which role?",
-          choices: roleTitles,
-          validate: util.isEmpty
-        },
-      ]
-    ).then(answers => {
+    inquirer.prompt({
+      name: "title",
+      type: "list",
+      message: "Remove which role?",
+      choices: roleTitles,
+      validate: util.isEmpty
+    })
+    .then(answers => {
       const roleId = getRoleId(answers.title);
       Role.remove(roleId)
         .then(console.log(chalk.yellow(`Removed role "${answers.title}"`)));
@@ -414,10 +425,10 @@ function viewDepartments() {
   Department.viewAll()
     .then(data => {
       if (data != undefined) {
-            console.table(data);
-          } else {
-            console.log('No departments found, you need to add some first');
-          }
+        console.table(data);
+      } else {
+        console.log('No departments found, you need to add some first');
+      }
     })
     .catch(err => {
       console.log(err);
@@ -429,14 +440,13 @@ function viewDepartments() {
 
 // Add Department
 function addDepartment() {
-  inquirer.prompt(
-    {
-      name: "name",
-      type: "input",
-      message: "What is the name of this department?",
-      validate: util.isEmpty
-    }
-  ).then(answers => {
+  inquirer.prompt({
+    name: "name",
+    type: "input",
+    message: "What is the name of this department?",
+    validate: util.isEmpty
+  })
+  .then(answers => {
     const newDepartmentObj = {
       name: answers.name, 
     };
@@ -450,7 +460,7 @@ function addDepartment() {
 function removeDepartment() {
   connection.query('SELECT id, name FROM department', (err, rows) => {
     if (err) throw Error(err);
-    /* Get an array of all the role titles to use for choices */
+    /* Get an array of all the department names to use for choices */
     const departmentNames = rows.map(department => department.name);
     /* Get a department ID from the department Name - this would probably be better as a getter on a class */
     function getDepartmentId(rows, departmentName) {
@@ -460,15 +470,14 @@ function removeDepartment() {
         };
       };
     };
-    inquirer.prompt(
-      {
-        name: "name",
-        type: "list",
-        message: "Remove which department?",
-        choices: departmentNames,
-        validate: util.isEmpty
-      }
-    ).then(answers => {
+    inquirer.prompt({
+      name: "name",
+      type: "list",
+      message: "Remove which department?",
+      choices: departmentNames,
+      validate: util.isEmpty
+    })
+    .then(answers => {
       const departmentId = getDepartmentId(answers.name);
       Department.remove(departmentId);
       console.log(chalk.yellow(`Removed department "${answers.name}"`));
@@ -499,7 +508,8 @@ function showMenu() {
       'Remove Department',
       'Exit'
     ]
-  }).then(answer => {
+  })
+  .then(answer => {
     switch(answer.action) {
       case 'View All Employees':
         viewEmployees();
