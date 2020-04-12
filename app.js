@@ -30,7 +30,90 @@ function viewEmployees() {
 };
 
 //// View All Employees by Department
+function viewEmployeesByDepartment() {
+  connection.query('SELECT id, name FROM department', (err, departments) => {
+    if (err) throw Error(err);
+    /* Get an array of all the department names to use for choices */
+    const departmentNames = departments.map(department => department.name);
+    /* Get a department ID from the department Name - this would probably be better as a getter on a class */
+    function getDepartmentId(departments, departmentName) {
+      for (let i=0; i<departments.length; i++) {
+        if (departments[i].name === departmentName) {
+          return departments[i].id;
+        };
+      };
+    };
+    inquirer
+      .prompt([
+        {
+          name: "department",
+          type: "list",
+          message: "View employees for what department?",
+          choices: departmentNames,
+          validate: util.isEmpty
+        },
+      ])
+      .then(answers => {
+        const departmentId = getDepartmentId(departments, answers.department);
+        Employee.viewByDepartment(departmentId)
+          .then(data => {
+            if (data.length != 0) {
+              console.table(data)
+            } else {
+              console.log(chalk.yellow('No employees found for that department, please choose a different department.'));
+            };
+          }).catch(err => {
+            console.log(err);
+          })
+          .then(() => {
+            showMenu();
+          });
+        });
+  })
+};
+
 //// View All Employees by Manager
+function viewEmployeesByManager() {
+  connection.query('SELECT id, first_name, last_name FROM employee', (err, managers) => {
+    if (err) throw Error(err);
+    /* Get an array of all the employee names to use for choices */
+    const managerNames = managers.map(employee => `${employee.first_name} ${employee.last_name}`);
+    /* Get a employee ID from the employee Name - this would probably be better as a getter on a class */
+    function getManagerId(managers, managerName) {
+      for (let i=0; i<managers.length; i++) {
+        if (`${managers[i].first_name} ${managers[i].last_name}` === managerName) {
+          return managers[i].id;
+        };
+      };
+    };
+    inquirer
+      .prompt([
+        {
+          name: "manager",
+          type: "list",
+          message: "View employees for what manager?",
+          choices: managerNames,
+          validate: util.isEmpty
+        },
+      ])
+      .then(answers => {
+        const managerId = getManagerId(managers, answers.manager);
+        Employee.viewByManager(managerId)
+          .then(data => {
+            if (data.length != 0) {
+              console.table(data)
+            } else {
+              console.log(chalk.yellow('No direct reports found for that employee, please choose a different manager.'));
+            };
+          }).catch(err => {
+            console.log(err);
+          })
+          .then(() => {
+            showMenu();
+          });
+        });
+  })
+};
 
 /* Add Employee */
 function addEmployee() {
@@ -229,14 +312,14 @@ function updateEmployeeManager() {
           {
             name: "employee",
             type: "list",
-            message: `Change the manager for which employee?`,
+            message: "Change the manager for which employee?",
             choices: employeeNames,
             validate: util.isEmpty
           },
           {
             name: "manager",
             type: "list",
-            message: `What manager would you like to set for this employee?`,
+            message: "What manager would you like to set for this employee?",
             choices: managerNames,
             validate: util.isEmpty
           },
@@ -404,6 +487,8 @@ function showMenu() {
     message: 'What would you like to do?',
     choices: [
       'View All Employees',
+      'View Employees by Manager',
+      'View Employees by Department',
       'Add Employee',
       'Update Employee Role',
       'Update Employee Manager',
@@ -421,6 +506,12 @@ function showMenu() {
       case 'View All Employees':
         viewEmployees();
         break;
+      case 'View Employees by Manager':
+        viewEmployeesByManager();
+        break;
+      case 'View Employees by Department':
+        viewEmployeesByDepartment();
+        break;  
       case 'Add Employee':
         addEmployee();
         break;
@@ -457,8 +548,6 @@ function showMenu() {
     };
   });
 };
-
-
 
 function startApp() {
   util.displayBrand('employee-db');
