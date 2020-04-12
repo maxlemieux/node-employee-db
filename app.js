@@ -215,6 +215,37 @@ function addRole() {
 };
 
 //// Remove Role
+function removeRole() {
+  connection.query('SELECT id, title FROM role', (err, rows) => {
+    if (err) throw Error(err);
+    /* Get an array of all the role titles to use for choices */
+    const roleTitles = rows.map(role => role.title);
+    /* Get a department ID from the department Name - this would probably be better as a getter on a class */
+    function getRoleId(rows, roleTitle) {
+      for (let i=0; i<rows.length; i++) {
+        if (rows[i].title === roleTitle) {
+          return rows[i].id;
+        };
+      };
+    };
+    inquirer.prompt(
+      [
+        {
+          name: "title",
+          type: "list",
+          message: "Remove which role?",
+          choices: roleTitles,
+          validate: util.isEmpty
+        },
+      ]
+    ).then(answers => {
+      const roleId = getRoleId(answers.title);
+      Role.remove(roleId)
+        .then(console.log(chalk.yellow(`Removed role "${answers.title}"`)));
+      showMenu();
+    });
+  })
+};
 
 // View Departments
 function viewDepartments() {
@@ -278,7 +309,7 @@ function removeDepartment() {
     ).then(answers => {
       const departmentId = getDepartmentId(answers.name);
       Department.remove(departmentId);
-      console.log(chalk.green(`Removed department "${answers.name}"`));
+      console.log(chalk.yellow(`Removed department "${answers.name}"`));
       showMenu();
     });
   })
@@ -297,6 +328,7 @@ function showMenu() {
       'Update Employee Role',
       'View All Roles',
       'Add Role',
+      'Remove Role',
       'View Departments',
       'Add Department',
       'Remove Department',
@@ -318,6 +350,9 @@ function showMenu() {
         break;
       case 'Add Role':
         addRole();
+        break;
+      case 'Remove Role':
+        removeRole();
         break;
       case 'View Departments':
         viewDepartments();
