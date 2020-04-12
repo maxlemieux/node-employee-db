@@ -206,7 +206,7 @@ function removeEmployee() {
     .then(answers => {
       const employeeId = getEmployeeId(rows, answers.name);
       Employee.remove(employeeId);
-      console.log(chalk.yellow(`Removed employee "${answers.name}"`));
+      console.log(chalk.red(`Removed employee "${answers.name}"`));
       showMenu();
     });
   })
@@ -418,7 +418,7 @@ function removeRole() {
       const roleId = getRoleId(rows, answers.title);
       Role.remove(roleId)
         .then(() => {
-          console.log(chalk.yellow(`Removed role "${answers.title}"`));
+          console.log(chalk.red(`Removed role "${answers.title}"`));
           showMenu();
         })
         .catch(err => {
@@ -494,7 +494,7 @@ function removeDepartment() {
       const departmentId = getDepartmentId(rows, answers.name);
       Department.remove(departmentId)
       .then(() => {
-        console.log(chalk.yellow(`Removed department "${answers.name}"`));
+        console.log(chalk.red(`Removed department "${answers.name}"`));
         showMenu();
       })
       .catch(err => {
