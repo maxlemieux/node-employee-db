@@ -62,12 +62,12 @@ Follow the interactive prompts to work with department, role and employee entrie
 ### Role features
 * View All Roles
 * Add Role
-* Remove Role (Only works if role is not assigned to any employees)
+* Remove Role (Only if role is not assigned to any employees)
 
 ### Department features
 * View Departments
 * Add Department
-* Remove Department (Only works if department is not assigned to any roles)
+* Remove Department (Only if department is not assigned to any roles)
 
 ## Technologies used
 * Node.js
