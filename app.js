@@ -1,4 +1,5 @@
 /* NPM packages */
+const chalk = require('chalk');
 const inquirer = require('inquirer');
 require('console.table');
 
@@ -161,6 +162,7 @@ function updateEmployeeRole() {
           };
           connection.query(`UPDATE employee SET ? WHERE id=${employeeId(employees, answers.employee)}`, newEmployeeObj, (err, res) => {
             if (err) throw err;
+            console.log(chalk.green(`Updated role to  "${answers.role}" for employee ${answers.employee}`));
             showMenu();
           });
         });
@@ -205,11 +207,8 @@ function addRole() {
         title: answers.title, 
         salary: answers.salary, 
     };
-    // connection.query('INSERT INTO role SET ?', newRoleObj, (err, res) => {
-    //   if (err) throw err;
-    //   showMenu();
-    // });
-    Role.add(newRoleObj);
+    Role.add(newRoleObj)
+      .then(console.log(chalk.green(`Added new role "${newRoleObj.title}" with salary ${newRoleObj.salary}`)));
     showMenu();
   });
 };
