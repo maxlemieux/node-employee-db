@@ -50,6 +50,25 @@ Run the app:
 
 Follow the interactive prompts to work with department, role and employee entries.
 
+### Employee features
+* View All Employees
+* View Employees by Manager
+* View Employees by Department
+* Add Employee
+* Update Employee Role
+* Update Employee Manager
+* Remove Employee
+
+### Role features
+* View All Roles
+* Add Role
+* Remove Role (Only works if role is not assigned to any employees)
+
+### Department features
+* View Departments
+* Add Department
+* Remove Department (Only works if department is not assigned to any roles)
+
 ## Technologies used
 * Node.js
 * inquirer.js
