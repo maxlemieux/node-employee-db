@@ -31,7 +31,7 @@ function viewEmployees() {
 
 //// View All Employees by Department
 function viewEmployeesByDepartment() {
-  connection.query('SELECT id, name FROM department', (err, departments) => {
+  connection.query('SELECT id, name FROM department ORDER BY id', (err, departments) => {
     if (err) throw Error(err);
     /* Get an array of all the department names to use for choices */
     const departmentNames = departments.map(department => department.name);
@@ -71,7 +71,7 @@ function viewEmployeesByDepartment() {
 
 //// View All Employees by Manager
 function viewEmployeesByManager() {
-  connection.query('SELECT id, first_name, last_name FROM employee', (err, managers) => {
+  connection.query('SELECT id, first_name, last_name FROM employee ORDER BY last_name', (err, managers) => {
     if (err) throw Error(err);
     /* Get an array of all the employee names to use for choices */
     const managerNames = managers.map(employee => `${employee.first_name} ${employee.last_name}`);
@@ -112,7 +112,7 @@ function viewEmployeesByManager() {
 
 /* Add Employee */
 function addEmployee() {
-  connection.query('SELECT id, title FROM role', (err, roles) => {
+  connection.query('SELECT id, title FROM role ORDER BY id', (err, roles) => {
     if (err) throw Error(err);
     /* Get an array of all the role titles to use for choices */
     const rolesTitles = roles.map(role => role.title);
@@ -124,7 +124,7 @@ function addEmployee() {
         };
       };
     };
-    connection.query('SELECT id, first_name, last_name FROM employee', (err, employees) => {
+    connection.query('SELECT id, first_name, last_name FROM employee ORDER BY last_name', (err, employees) => {
       if (err) throw Error(err);
       /* Get an array of all the employee names to use for manager choices */
       const employeeNames = employees.map(employee => `${employee.first_name} ${employee.last_name}`);
@@ -185,7 +185,7 @@ function addEmployee() {
 
 //// Remove Employee
 function removeEmployee() {
-  connection.query('SELECT id, first_name, last_name FROM employee', (err, rows) => {
+  connection.query('SELECT id, first_name, last_name FROM employee ORDER BY last_name', (err, rows) => {
     if (err) throw Error(err);
     /* Get an array of all the employee names to use for choices */
     const employeeNames = rows.map(employee => `${employee.first_name} ${employee.last_name}`);
@@ -215,7 +215,7 @@ function removeEmployee() {
 
 // Update Employee Role
 function updateEmployeeRole() {
-  connection.query('SELECT id, title FROM role', (err, rows) => {
+  connection.query('SELECT id, title FROM role ORDER BY id', (err, rows) => {
     if (err) throw Error(err);
     /* Get an array of all the role titles to use for choices */
     const rolesTitles = rows.map(role => role.title);
@@ -227,7 +227,7 @@ function updateEmployeeRole() {
         };
       };
     };
-    connection.query('SELECT id, first_name, last_name FROM employee', (err, employees) => {
+    connection.query('SELECT id, first_name, last_name FROM employee ORDER BY last_name', (err, employees) => {
       if (err) throw Error(err);
       /* Get an array of all the employee names */
       const employeeNames = employees.map(employee => `${employee.first_name} ${employee.last_name}`);
@@ -273,7 +273,7 @@ function updateEmployeeRole() {
 
 //// Update Employee Manager
 function updateEmployeeManager() {
-  connection.query('SELECT id, first_name, last_name FROM employee', (err, managers) => {
+  connection.query('SELECT id, first_name, last_name FROM employee ORDER BY last_name', (err, managers) => {
     if (err) throw Error(err);
     /* Get an array of all the employee names to use for choices */
     const managerNames = managers.map(employee => `${employee.first_name} ${employee.last_name}`);
@@ -285,7 +285,7 @@ function updateEmployeeManager() {
         };
       };
     };
-    connection.query('SELECT id, first_name, last_name FROM employee', (err, employees) => {
+    connection.query('SELECT id, first_name, last_name FROM employee ORDER BY last_name', (err, employees) => {
       if (err) throw Error(err);
       /* Get an array of all the employee names */
       const employeeNames = employees.map(employee => `${employee.first_name} ${employee.last_name}`);
@@ -348,7 +348,7 @@ function viewRoles() {
 
 // Add Role
 function addRole() {
-  connection.query('SELECT id, name FROM department', (err, rows) => {
+  connection.query('SELECT id, name FROM department ORDER BY id', (err, rows) => {
     if (err) throw Error(err);
     /* Get an array of all the department names to use for choices */
     const departmentNames = rows.map(department => department.name);
@@ -396,7 +396,7 @@ function addRole() {
 
 //// Remove Role
 function removeRole() {
-  connection.query('SELECT id, title FROM role', (err, rows) => {
+  connection.query('SELECT id, title FROM role ORDER BY id', (err, rows) => {
     if (err) throw Error(err);
     /* Get an array of all the role titles to use for choices */
     const roleTitles = rows.map(role => role.title);
@@ -472,7 +472,7 @@ function addDepartment() {
 
 //// Remove Department
 function removeDepartment() {
-  connection.query('SELECT id, name FROM department', (err, rows) => {
+  connection.query('SELECT id, name FROM department ORDER BY id', (err, rows) => {
     if (err) throw Error(err);
     /* Get an array of all the department names to use for choices */
     const departmentNames = rows.map(department => department.name);
@@ -492,10 +492,20 @@ function removeDepartment() {
       validate: util.isEmpty
     })
     .then(answers => {
-      const departmentId = getDepartmentId(answers.name);
-      Department.remove(departmentId);
-      console.log(chalk.yellow(`Removed department "${answers.name}"`));
-      showMenu();
+      const departmentId = getDepartmentId(rows, answers.name);
+      Department.remove(departmentId)
+      .then(() => {
+        console.log(chalk.yellow(`Removed department "${answers.name}"`));
+        showMenu();
+      })
+      .catch(err => {
+        if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+          console.log(chalk.yellow('Cannot remove that department because it is currently assigned to one or more roles. Please remove those roles first.'))
+        } else {
+          console.log(chalk.yellow('There was an error, please try again.'));
+        }
+        showMenu();
+      });
     });
   })
 };
