@@ -100,6 +100,7 @@ function addEmployee() {
           ];
           connection.query('INSERT INTO employee SET ?', employeeArray, (err, res) => {
             if (err) throw err;
+            console.log(chalk.green(`Added new employee ${answers.first_name} ${answers.last_name} with role "${answers.role}" and manager ${answers.manager}`));
             showMenu();
           });
         });
@@ -247,6 +248,7 @@ function addDepartment() {
       name: answers.name, 
     };
     Department.add(newDepartmentObj);
+    console.log(chalk.green(`Added new department "${answers.name}"`));
     showMenu();
   });
 };

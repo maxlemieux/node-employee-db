@@ -3,9 +3,9 @@ const connection = require('../config/connection.js');
 const Employee = {
   viewAll: function() {
     const sql = `SELECT e.id, 
-                        CONCAT(e.last_name, ', ', e.first_name) AS Employee, 
+                        CONCAT(e.first_name, ' ', e.last_name) AS Employee, 
                         r.title, 
-                        IFNULL(CONCAT(m.last_name, ', ', m.first_name), 'None') AS Manager 
+                        IFNULL(CONCAT(m.first_name, ' ', m.last_name), 'None') AS Manager 
                    FROM employee AS e 
                         LEFT JOIN role AS r 
                         ON e.role_id = r.id 
@@ -19,18 +19,6 @@ const Employee = {
       });
     });
   },
-  // getIdByName: function(employeeName) {
-  //   let employeeId = 'foo';
-  //   const sql = `SELECT id
-  //                  FROM employee
-  //                 WHERE (CONCAT(last_name, ', ', first_name)) = '${employeeName}'`;
-  //   connection.query(sql, (err, rows) => {
-  //     if (err) throw err;
-  //     // console.log(employeeId);
-  //     // console.log(data[0].id)
-  //     employeeId = rows[0].id;
-  //   })
-  // },
 };
 
 module.exports = Employee;
