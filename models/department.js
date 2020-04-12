@@ -2,7 +2,7 @@ const connection = require('../config/connection.js');
 
 const Department = {
   viewAll: function() {
-    const sql = `SELECT d.name AS Department, COUNT(e.id) AS Employees, SUM(r.salary) AS Budget
+    const sql = `SELECT d.name AS Department, COUNT(e.id) AS Employees
                    FROM department d
                         LEFT JOIN role r
                         ON r.department_id = d.id
