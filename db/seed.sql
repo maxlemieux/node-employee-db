@@ -18,3 +18,11 @@ INSERT INTO employee (first_name, last_name, manager_id, role_id) VALUES ('Fred'
 INSERT INTO employee (first_name, last_name, manager_id, role_id) VALUES ('Betty', 'Rubble', 1, 3);
 INSERT INTO employee (first_name, last_name, manager_id, role_id) VALUES ('Barney', 'Rubble', 3, 4);
 INSERT INTO employee (first_name, last_name, manager_id, role_id) VALUES ('Dino', 'Flintstone', 3, 5);
+
+
+SELECT d.name, r.title, e.first_name, e.last_name, r.salary
+FROM department d
+LEFT JOIN role r
+ON r.department_id = d.id
+LEFT JOIN employee e
+ON e.role_id = r.id;
