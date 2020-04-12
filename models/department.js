@@ -22,7 +22,7 @@ const Department = {
   remove: function(departmentId) {
     const sql = 'DELETE FROM department WHERE id = ?';
     return new Promise(function(resolve, reject) {
-      connection.query(sql, departmentId, function(err, data) {
+      connection.query(sql, [departmentId], function(err, data) {
         if (err) reject(err);
         resolve(data);
       });

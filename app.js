@@ -260,7 +260,7 @@ function removeDepartment() {
     /* Get an array of all the role titles to use for choices */
     const departmentNames = rows.map(department => department.name);
     /* Get a department ID from the department Name - this would probably be better as a getter on a class */
-    function departmentId(rows, departmentName) {
+    function getDepartmentId(rows, departmentName) {
       for (let i=0; i<rows.length; i++) {
         if (rows[i].name === departmentName) {
           return rows[i].id;
@@ -276,7 +276,7 @@ function removeDepartment() {
         validate: util.isEmpty
       }
     ).then(answers => {
-      const departmentId = departmentId(answers.name);
+      const departmentId = getDepartmentId(answers.name);
       Department.remove(departmentId);
       console.log(chalk.green(`Removed department "${answers.name}"`));
       showMenu();

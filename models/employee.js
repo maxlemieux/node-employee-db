@@ -19,6 +19,15 @@ const Employee = {
       });
     });
   },
+  remove: function(employeeId) {
+    const sql = 'DELETE FROM employee WHERE id = ?';
+    return new Promise(function(resolve, reject) {
+      connection.query(sql, [employeeId], function(err, data) {
+        if (err) reject(err);
+        resolve(data);
+      });
+    });
+  }
 };
 
 module.exports = Employee;
