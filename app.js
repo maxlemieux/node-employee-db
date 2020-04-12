@@ -108,10 +108,36 @@ function addEmployee() {
   });
 };
 
-
-
-
 //// Remove Employee
+function removeEmployee() {
+  connection.query('SELECT id, first_name, last_name FROM employee', (err, rows) => {
+    if (err) throw Error(err);
+    /* Get an array of all the employee names to use for choices */
+    const employeeNames = rows.map(employee => `${employee.first_name} ${employee.last_name}`);
+    /* Get a employee ID from the employee Name - this would probably be better as a getter on a class */
+    function getEmployeeId(rows, employeeName) {
+      for (let i=0; i<rows.length; i++) {
+        if (`${rows[i].first_name} ${rows[i].last_name}` === employeeName) {
+          return rows[i].id;
+        };
+      };
+    };
+    inquirer.prompt(
+      {
+        name: "name",
+        type: "list",
+        message: "Remove which employee?",
+        choices: employeeNames,
+        validate: util.isEmpty
+      }
+    ).then(answers => {
+      const employeeId = getEmployeeId(answers.name);
+      Employee.remove(employeeId);
+      console.log(chalk.yellow(`Removed employee "${answers.name}"`));
+      showMenu();
+    });
+  })
+};
 
 // Update Employee Role
 function updateEmployeeRole() {
@@ -315,7 +341,6 @@ function removeDepartment() {
   })
 };
 
-
 /* Show the main menu */
 function showMenu() {
   inquirer.prompt({
@@ -326,6 +351,7 @@ function showMenu() {
       'View All Employees',
       'Add Employee',
       'Update Employee Role',
+      'Remove Employee',
       'View All Roles',
       'Add Role',
       'Remove Role',
@@ -344,6 +370,9 @@ function showMenu() {
         break;
       case 'Update Employee Role':
         updateEmployeeRole();
+        break;
+      case 'Remove Employee':
+        removeEmployee();
         break;
       case 'View All Roles':
         viewRoles();
